@@ -76,7 +76,7 @@ public class StudyMemberService {
         StudyMember member = studyMemberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFound("참여 신청 내역이 없습니다."));
 
-        if (!"P".equals(member.getStatus())) {
+        if (!"P".equals(member.getStatus().name())) {
             throw new IllegalStateException("대기 중인 신청이 아닙니다.");
         }
 
