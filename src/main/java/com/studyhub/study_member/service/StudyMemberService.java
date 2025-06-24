@@ -24,7 +24,7 @@ public class StudyMemberService {
 
     @Transactional(readOnly = true)
     public List<StudyMemberResponseDto> getAcceptedMembers(Long studyId) {
-        List<StudyMember> member = studyMemberRepository.findByStudyIdAndStatus(studyId, "A");
+        List<StudyMember> member = studyMemberRepository.findByStudyIdAndStatus(studyId, Status.valueOf("A"));
 
         return member.stream()
                 .map(StudyMemberResponseDto::fromEntity)
@@ -33,7 +33,7 @@ public class StudyMemberService {
 
     @Transactional(readOnly = true)
     public List<StudyMemberResponseDto> getPendingRequests(Long studyId) {
-        List<StudyMember> member = studyMemberRepository.findByStudyIdAndStatus(studyId, "P");
+        List<StudyMember> member = studyMemberRepository.findByStudyIdAndStatus(studyId, Status.valueOf("P"));
 
         return member.stream()
                 .map(StudyMemberResponseDto::fromEntity)
