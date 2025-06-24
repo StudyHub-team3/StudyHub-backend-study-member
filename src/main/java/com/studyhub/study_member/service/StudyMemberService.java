@@ -3,6 +3,7 @@ package com.studyhub.study_member.service;
 import com.studyhub.study_member.common.exception.NotFound;
 import com.studyhub.study_member.domain.dto.StudyMemberRequestJoinDto;
 import com.studyhub.study_member.domain.dto.StudyMemberResponseDto;
+import com.studyhub.study_member.domain.entity.Status;
 import com.studyhub.study_member.domain.entity.StudyMember;
 import com.studyhub.study_member.domain.event.KafkaEvent;
 import com.studyhub.study_member.domain.event.dto.StudyMemberEventDto;
@@ -25,8 +26,6 @@ public class StudyMemberService {
     public List<StudyMemberResponseDto> getAcceptedMembers(Long studyId) {
         List<StudyMember> member = studyMemberRepository.findByStudyIdAndStatus(studyId, "A");
 
-        // TODO: 유저 정보 호출
-
         return member.stream()
                 .map(StudyMemberResponseDto::fromEntity)
                 .toList();
@@ -36,20 +35,22 @@ public class StudyMemberService {
     public List<StudyMemberResponseDto> getPendingRequests(Long studyId) {
         List<StudyMember> member = studyMemberRepository.findByStudyIdAndStatus(studyId, "P");
 
-        // TODO: 유저 정보 호출
-
         return member.stream()
                 .map(StudyMemberResponseDto::fromEntity)
                 .toList();
     }
 
     @Transactional
-    public void requestJoin(StudyMemberRequestJoinDto requestJoinDto, Long userId) {
+    public void requestJoin(StudyMemberRequestJoinDto requestJoinDto, String userId, String userName) {
         if (studyMemberRepository.existsByStudyIdAndUserId(requestJoinDto.getStudyId(), userId)) {
             throw new IllegalStateException("이미 신청하거나 참여 중인 사용자입니다.");
         }
 
-        studyMemberRepository.save(requestJoinDto.toEntity(false));
+        StudyMember member = requestJoinDto.toEntity(false);
+        member.setUserId(userId);
+        member.setUserName(userName);
+
+        studyMemberRepository.save(member);
     }
 
     @Transactional
@@ -57,11 +58,11 @@ public class StudyMemberService {
         StudyMember member = studyMemberRepository.findById(memberId)
                 .orElseThrow(() -> new NotFound("참여 신청 내역이 없습니다."));
 
-        if (!"P".equals(member.getStatus())) {
+        if (!"P".equals(member.getStatus().name())) {
             throw new IllegalStateException("대기 중인 신청이 아닙니다.");
         }
 
-        member.setStatus("A");
+        member.setStatus(Status.A);
         member.setJoinAt(LocalDateTime.now());
 
         studyMemberRepository.save(member);
@@ -83,7 +84,7 @@ public class StudyMemberService {
     }
 
     @Transactional
-    public void leaveStudy(Long studyId, Long userId) {
+    public void leaveStudy(Long studyId, String userId) {
         StudyMember member = studyMemberRepository.findByStudyIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new NotFound("참여자가 아닙니다."));
 
@@ -98,7 +99,12 @@ public class StudyMemberService {
     }
 
     @Transactional
-    public void createLeader(StudyMemberRequestJoinDto requestJoinDto, Long userId) {
-        studyMemberRepository.save(requestJoinDto.toEntity(true));
+    public void createLeader(StudyMemberRequestJoinDto requestJoinDto, String userId, String userName) {
+        StudyMember member = requestJoinDto.toEntity(true);
+
+        member.setUserId(userId);
+        member.setUserName(userName);
+
+        studyMemberRepository.save(member);
     }
 }

@@ -9,7 +9,7 @@ import lombok.Setter;
 public class StudyMemberResponseDto {
     private Long id;
     private Long studyId;
-    private Long userId;
+    private String userId;
     private String userName;
     private String status;
     private String role;
@@ -21,8 +21,9 @@ public class StudyMemberResponseDto {
         dto.id = member.getId();
         dto.studyId = member.getStudyId();
         dto.userId = member.getUserId();
-        dto.status = member.getStatus();
-        dto.role = member.getRole();
+        dto.userName = member.getUserName();
+        dto.status = member.getStatus().name();
+        dto.role = member.getRole().name();
         dto.comment = member.getComment();
 
         return dto;

@@ -29,17 +29,24 @@ public class StudyMember {
     @Column(nullable = false)
     @Getter
     @Setter
-    private Long userId;
+    private String userId;
+
+    @Column(nullable = false)
+    @Getter
+    @Setter
+    private String userName;
 
     @Column
     @Getter
     @Setter
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
     @Column
     @Getter
     @Setter
-    private String role;
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
     @Column
     @Getter

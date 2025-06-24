@@ -8,7 +8,8 @@ import lombok.Setter;
 @Setter
 public class StudyMemberEventDto {
     private Long studyId;
-    private Long userId;
+    private String userId;
+    private String userName;
     private String role;
 
     public static StudyMemberEventDto fromEntity(StudyMember member) {
@@ -16,7 +17,8 @@ public class StudyMemberEventDto {
 
         eventDto.studyId = member.getStudyId();
         eventDto.userId = member.getUserId();
-        eventDto.role = member.getRole();
+        eventDto.userName = member.getUserName();
+        eventDto.role = member.getRole().name();
 
         return eventDto;
     }

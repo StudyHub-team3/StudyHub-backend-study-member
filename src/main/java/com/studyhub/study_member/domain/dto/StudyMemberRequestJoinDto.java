@@ -1,5 +1,7 @@
 package com.studyhub.study_member.domain.dto;
 
+import com.studyhub.study_member.domain.entity.Role;
+import com.studyhub.study_member.domain.entity.Status;
 import com.studyhub.study_member.domain.entity.StudyMember;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,9 +21,8 @@ public class StudyMemberRequestJoinDto {
         StudyMember member = new StudyMember();
 
         member.setStudyId(this.studyId);
-        member.setUserId(1L);
-        member.setStatus(isLeader ? "A" : "P");
-        member.setRole(this.role);
+        member.setStatus(isLeader ? Status.A : Status.P);
+        member.setRole(Role.valueOf(this.role));
         member.setLeader(isLeader);
         member.setJoinAt(isLeader ? LocalDateTime.now() : null);
         member.setComment(this.comment);

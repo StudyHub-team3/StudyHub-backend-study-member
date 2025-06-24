@@ -9,9 +9,9 @@ import java.util.Optional;
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
     List<StudyMember> findByStudyId(Long studyId);
 
-    Optional<StudyMember> findByStudyIdAndUserId(Long studyId, Long userId);
+    Optional<StudyMember> findByStudyIdAndUserId(Long studyId, String userId);
 
     List<StudyMember> findByStudyIdAndStatus(Long studyId, String status);
 
-    boolean existsByStudyIdAndUserId(Long studyId, Long userId);
+    boolean existsByStudyIdAndUserId(Long studyId, String userId);
 }
