@@ -5,6 +5,7 @@ import com.studyhub.study_member.domain.dto.StudyMemberRequestJoinDto;
 import com.studyhub.study_member.domain.dto.StudyMemberResponseDto;
 import com.studyhub.study_member.domain.entity.StudyMember;
 import com.studyhub.study_member.domain.event.KafkaEvent;
+import com.studyhub.study_member.domain.event.dto.StudyMemberEventDto;
 import com.studyhub.study_member.domain.repository.StudyMemberRepository;
 import com.studyhub.study_member.producer.KafkaMessageProducer;
 import lombok.RequiredArgsConstructor;
@@ -65,7 +66,7 @@ public class StudyMemberService {
 
         studyMemberRepository.save(member);
 
-        KafkaEvent<StudyMember> event = new KafkaEvent<>("CREATE", member);
+        KafkaEvent<StudyMemberEventDto> event = new KafkaEvent<>("STUDY_CREW_JOINED", StudyMemberEventDto.fromEntity(member));
         kafkaMessageProducer.send("studyCrewJoined", event);
     }
 
@@ -92,7 +93,7 @@ public class StudyMemberService {
 
         studyMemberRepository.delete(member);
 
-        KafkaEvent<StudyMember> event = new KafkaEvent<>("DELETE", member);
+        KafkaEvent<StudyMemberEventDto> event = new KafkaEvent<>("STUDY_CREW_QUITED", StudyMemberEventDto.fromEntity(member));
         kafkaMessageProducer.send("studyCrewQuited", event);
     }
 
