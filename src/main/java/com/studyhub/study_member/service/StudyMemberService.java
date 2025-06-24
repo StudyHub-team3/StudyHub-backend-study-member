@@ -40,6 +40,14 @@ public class StudyMemberService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public StudyMemberResponseDto getUserData(Long studyId, Long userId) {
+        StudyMember member = studyMemberRepository.findByStudyIdAndUserId(studyId, userId)
+                .orElseThrow(() -> new NotFound("참여자가 아닙니다."));
+
+        return StudyMemberResponseDto.fromEntity(member);
+    }
+
     @Transactional
     public void requestJoin(StudyMemberRequestJoinDto requestJoinDto, Long userId, String userName) {
         if (studyMemberRepository.existsByStudyIdAndUserId(requestJoinDto.getStudyId(), userId)) {

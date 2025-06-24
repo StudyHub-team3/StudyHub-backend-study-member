@@ -18,6 +18,7 @@ public class StudyMemberResponseDto {
     private String role;
     private String comment;
     private String requestAt;
+    private boolean isLeader;
 
     public static StudyMemberResponseDto fromEntity(StudyMember member) {
         StudyMemberResponseDto dto = new StudyMemberResponseDto();
@@ -30,6 +31,7 @@ public class StudyMemberResponseDto {
         dto.role = member.getRole().name();
         dto.comment = member.getComment();
         dto.requestAt = member.getRequestAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        dto.isLeader = member.isLeader();
 
         return dto;
     }

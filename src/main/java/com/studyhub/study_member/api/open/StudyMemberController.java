@@ -61,4 +61,11 @@ public class StudyMemberController {
 
         return ApiResponseDto.defaultOk();
     }
+
+    @GetMapping("/member/info/{studyId}")
+    public ApiResponseDto<StudyMemberResponseDto> getMemberInfo(@PathVariable Long studyId) {
+        Long userId = GatewayRequestHeaderUtils.getUserIdOrThrowException();
+
+        return ApiResponseDto.createOk(studyMemberService.getUserData(studyId, userId));
+    }
 }
