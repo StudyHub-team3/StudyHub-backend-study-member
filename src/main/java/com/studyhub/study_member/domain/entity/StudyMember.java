@@ -29,7 +29,7 @@ public class StudyMember {
     @Column(nullable = false)
     @Getter
     @Setter
-    private String userId;
+    private Long userId;
 
     @Column(nullable = false)
     @Getter

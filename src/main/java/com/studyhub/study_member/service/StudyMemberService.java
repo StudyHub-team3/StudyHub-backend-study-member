@@ -8,7 +8,7 @@ import com.studyhub.study_member.domain.entity.StudyMember;
 import com.studyhub.study_member.domain.event.KafkaEvent;
 import com.studyhub.study_member.domain.event.dto.StudyMemberEventDto;
 import com.studyhub.study_member.domain.repository.StudyMemberRepository;
-import com.studyhub.study_member.producer.KafkaMessageProducer;
+import com.studyhub.study_member.event.producer.KafkaMessageProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,12 +41,12 @@ public class StudyMemberService {
     }
 
     @Transactional
-    public void requestJoin(StudyMemberRequestJoinDto requestJoinDto, String userId, String userName) {
+    public void requestJoin(StudyMemberRequestJoinDto requestJoinDto, Long userId, String userName) {
         if (studyMemberRepository.existsByStudyIdAndUserId(requestJoinDto.getStudyId(), userId)) {
             throw new IllegalStateException("이미 신청하거나 참여 중인 사용자입니다.");
         }
 
-        StudyMember member = requestJoinDto.toEntity(false);
+        StudyMember member = requestJoinDto.toEntity();
         member.setUserId(userId);
         member.setUserName(userName);
 
@@ -68,7 +68,7 @@ public class StudyMemberService {
         studyMemberRepository.save(member);
 
         KafkaEvent<StudyMemberEventDto> event = new KafkaEvent<>("STUDY_CREW_JOINED", StudyMemberEventDto.fromEntity(member));
-        kafkaMessageProducer.send("studyCrewJoined", event);
+        kafkaMessageProducer.send("study-member", event);
     }
 
     @Transactional
@@ -84,7 +84,7 @@ public class StudyMemberService {
     }
 
     @Transactional
-    public void leaveStudy(Long studyId, String userId) {
+    public void leaveStudy(Long studyId, Long userId) {
         StudyMember member = studyMemberRepository.findByStudyIdAndUserId(studyId, userId)
                 .orElseThrow(() -> new NotFound("참여자가 아닙니다."));
 
@@ -95,16 +95,16 @@ public class StudyMemberService {
         studyMemberRepository.delete(member);
 
         KafkaEvent<StudyMemberEventDto> event = new KafkaEvent<>("STUDY_CREW_QUITED", StudyMemberEventDto.fromEntity(member));
-        kafkaMessageProducer.send("studyCrewQuited", event);
+        kafkaMessageProducer.send("study-member", event);
     }
 
     @Transactional
-    public void createLeader(StudyMemberRequestJoinDto requestJoinDto, String userId, String userName) {
-        StudyMember member = requestJoinDto.toEntity(true);
-
-        member.setUserId(userId);
-        member.setUserName(userName);
-
+    public void createLeader(StudyMember member) {
         studyMemberRepository.save(member);
+    }
+
+    @Transactional
+    public void handleStudyDeletedEvent(Long studyId) {
+        studyMemberRepository.deleteByStudyId(studyId);
     }
 }

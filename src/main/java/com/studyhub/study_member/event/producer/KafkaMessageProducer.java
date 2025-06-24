@@ -1,4 +1,4 @@
-package com.studyhub.study_member.producer;
+package com.studyhub.study_member.event.producer;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

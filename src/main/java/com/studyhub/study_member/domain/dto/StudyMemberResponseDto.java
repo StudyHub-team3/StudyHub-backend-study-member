@@ -9,7 +9,7 @@ import lombok.Setter;
 public class StudyMemberResponseDto {
     private Long id;
     private Long studyId;
-    private String userId;
+    private Long userId;
     private String userName;
     private String status;
     private String role;

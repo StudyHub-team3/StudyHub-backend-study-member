@@ -8,7 +8,7 @@ import lombok.Setter;
 @Setter
 public class StudyMemberEventDto {
     private Long studyId;
-    private String userId;
+    private Long userId;
     private String userName;
     private String role;
 

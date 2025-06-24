@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/api/studies", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/api/study-members", produces = MediaType.APPLICATION_JSON_VALUE)
 @CrossOrigin(origins = "http://localhost:5173")
 @RequiredArgsConstructor
 public class StudyMemberController {
@@ -21,7 +21,7 @@ public class StudyMemberController {
 
     @PostMapping("/join")
     public ApiResponseDto<String> requestJoin(@RequestBody @Valid StudyMemberRequestJoinDto requestJoinDto) {
-        String userId = GatewayRequestHeaderUtils.getUserIdOrThrowException();
+        Long userId = GatewayRequestHeaderUtils.getUserIdOrThrowException();
         String userName = GatewayRequestHeaderUtils.getCUserNameOrThrowException();
 
         studyMemberService.requestJoin(requestJoinDto, userId, userName);
@@ -36,8 +36,7 @@ public class StudyMemberController {
 
     @DeleteMapping("/members/{studyId}")
     public ApiResponseDto<String> leaveStudy(@PathVariable Long studyId) {
-        String userId = GatewayRequestHeaderUtils.getUserIdOrThrowException();
-        String userName = GatewayRequestHeaderUtils.getCUserNameOrThrowException();
+        Long userId = GatewayRequestHeaderUtils.getUserIdOrThrowException();
 
         studyMemberService.leaveStudy(studyId, userId);
 

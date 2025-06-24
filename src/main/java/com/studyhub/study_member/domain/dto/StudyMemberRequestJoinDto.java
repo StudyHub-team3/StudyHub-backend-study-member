@@ -17,14 +17,14 @@ public class StudyMemberRequestJoinDto {
 
     private String comment;
 
-    public StudyMember toEntity(boolean isLeader) {
+    public StudyMember toEntity() {
         StudyMember member = new StudyMember();
 
         member.setStudyId(this.studyId);
-        member.setStatus(isLeader ? Status.A : Status.P);
+        member.setStatus(Status.P);
         member.setRole(Role.valueOf(this.role));
-        member.setLeader(isLeader);
-        member.setJoinAt(isLeader ? LocalDateTime.now() : null);
+        member.setLeader(false);
+        member.setJoinAt(null);
         member.setComment(this.comment);
 
         return member;

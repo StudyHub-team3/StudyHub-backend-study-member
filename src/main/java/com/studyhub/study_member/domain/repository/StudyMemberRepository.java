@@ -9,9 +9,11 @@ import java.util.Optional;
 public interface StudyMemberRepository extends JpaRepository<StudyMember, Long> {
     List<StudyMember> findByStudyId(Long studyId);
 
-    Optional<StudyMember> findByStudyIdAndUserId(Long studyId, String userId);
+    Optional<StudyMember> findByStudyIdAndUserId(Long studyId, Long userId);
 
     List<StudyMember> findByStudyIdAndStatus(Long studyId, String status);
 
-    boolean existsByStudyIdAndUserId(Long studyId, String userId);
+    boolean existsByStudyIdAndUserId(Long studyId, Long userId);
+
+    void deleteByStudyId(Long studyId);
 }
