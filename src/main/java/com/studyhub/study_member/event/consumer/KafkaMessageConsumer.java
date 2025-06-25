@@ -1,8 +1,7 @@
 package com.studyhub.study_member.event.consumer;
 
 import com.studyhub.study_member.domain.entity.StudyMember;
-import com.studyhub.study_member.event.consumer.study.StudyCreatedEvent;
-import com.studyhub.study_member.event.consumer.study.StudyDeletedEvent;
+import com.studyhub.study_member.event.consumer.study.StudyEvent;
 import com.studyhub.study_member.service.StudyMemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,31 +13,27 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class KafkaMessageConsumer {
+public class KafkaMessageConsumer<T> {
     private final StudyMemberService studyMemberService;
 
     @KafkaListener(
-            topics = StudyCreatedEvent.Topic,
+            topics = StudyEvent.Topic,
             properties = {
                     JsonDeserializer.VALUE_DEFAULT_TYPE
-                        + ":com.studyhub.study_member.event.consumer.study.StudyCreatedEvent"
+                        + ":com.studyhub.study_member.event.consumer.study.StudyEvent"
             })
-    void handleStudyCreatedEvent(StudyCreatedEvent event, Acknowledgment ack) {
-        StudyMember member = event.toEntity();
+    void handleStudyEvent(StudyEvent<T> event, Acknowledgment ack) {
+        if(event.getEventType().equals("STUDY_CREATED")) {
+            StudyEvent.studyCreatedData data = (StudyEvent.studyCreatedData) event.getData();
 
-        studyMemberService.createLeader(member);
+            StudyMember member = data.toEntity();
 
-        ack.acknowledge();
-    }
+            studyMemberService.createLeader(member);
+        } else {
+            StudyEvent.studyDeletedData data = (StudyEvent.studyDeletedData) event.getData();
 
-    @KafkaListener(
-            topics = StudyDeletedEvent.Topic,
-            properties = {
-                    JsonDeserializer.VALUE_DEFAULT_TYPE
-                        + ":com.studyhub.study_member.event.consumer.study.StudyDeletedEvent"
-            })
-    void handleStudyDeletedEvent(StudyDeletedEvent event, Acknowledgment ack) {
-        studyMemberService.handleStudyDeletedEvent(event.getStudyId());
+            studyMemberService.handleStudyDeletedEvent(data.getStudyId());
+        }
 
         ack.acknowledge();
     }
