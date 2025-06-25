@@ -1,5 +1,7 @@
 package com.studyhub.study_member.event.consumer;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.studyhub.study_member.domain.entity.StudyMember;
 import com.studyhub.study_member.event.consumer.study.StudyEvent;
 import com.studyhub.study_member.service.StudyMemberService;
@@ -17,24 +19,34 @@ public class KafkaMessageConsumer<T> {
     private final StudyMemberService studyMemberService;
 
     @KafkaListener(
-            topics = StudyEvent.Topic,
-            properties = {
-                    JsonDeserializer.VALUE_DEFAULT_TYPE
-                        + ":com.studyhub.study_member.event.consumer.study.StudyEvent"
-            })
-    void handleStudyEvent(StudyEvent<T> event, Acknowledgment ack) {
-        if(event.getEventType().equals("STUDY_CREATED")) {
-            StudyEvent.studyCreatedData data = (StudyEvent.studyCreatedData) event.getData();
+            topics = StudyEvent.Topic
+            )
+    void handleStudyEvent(String message, Acknowledgment ack) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(message);
+            String eventType = root.get("eventType").asText();
 
-            StudyMember member = data.toEntity();
+            switch (eventType) {
+                case "STUDY_CREATED" -> {
+                    StudyEvent.studyCreatedData data =
+                            mapper.treeToValue(root.get("data"), StudyEvent.studyCreatedData.class);
+                    StudyMember member = data.toEntity();
+                    studyMemberService.createLeader(member);
+                }
 
-            studyMemberService.createLeader(member);
-        } else {
-            StudyEvent.studyDeletedData data = (StudyEvent.studyDeletedData) event.getData();
+                case "STUDY_DELETED" -> {
+                    StudyEvent.studyDeletedData data =
+                            mapper.treeToValue(root.get("data"), StudyEvent.studyDeletedData.class);
+                    studyMemberService.handleStudyDeletedEvent(data.getStudyId());
+                }
 
-            studyMemberService.handleStudyDeletedEvent(data.getStudyId());
+                default -> log.warn("Unknown event type: {}", eventType);
+            }
+
+            ack.acknowledge();
+        } catch (Exception e) {
+            log.error("Kafka 메시지 처리 중 예외 발생", e);
         }
-
-        ack.acknowledge();
     }
 }
